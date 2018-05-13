@@ -5,14 +5,13 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class ImmutableArray<T>
+public final class ImmutableArray<T> implements Iterable<T>
 {
 
 	private final T[] array;
@@ -107,9 +106,32 @@ public final class ImmutableArray<T>
 		return collection;
 	}
 
+	@Override
+	public Iterator<T> iterator()
+	{
+		return new Iterator<T>() {
+
+			private int i = 0;
+
+			@Override
+			public boolean hasNext()
+			{
+				return i < array.length;
+			}
+
+			@Override
+			public T next()
+			{
+				return array[i++];
+			}
+
+		};
+	}
+
 	public Enumeration<T> values()
 	{
 		return new Enumeration<T>() {
+
 			private int i = 0;
 
 			@Override
@@ -123,19 +145,13 @@ public final class ImmutableArray<T>
 			{
 				return array[i++];
 			}
+
 		};
 	}
 
 	public Stream<T> stream()
 	{
 		return Stream.of(array);
-	}
-
-	public void forEach(Consumer<T> consumer)
-	{
-		for (int i = 0; i < array.length; i++) {
-			consumer.accept(array[i]);
-		}
 	}
 
 	public void forEach(ObjIntConsumer<T> consumer)
