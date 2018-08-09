@@ -13,6 +13,26 @@ tasks.withType(GroovyCompile)*.groovyOptions*.encoding = 'UTF-8'
 
 def mavenRootDir = '../' * (project.group.count('.') + 2)
 
+// 依存関係
+
+repositories {
+	mavenCentral()
+
+	maven { url mavenRootDir }
+
+	//maven { url 'https://raw.githubusercontent.com/MirrgieRiana/mirrg.lithium/master/maven' }
+	//maven { url 'https://mirrgieriana.github.io/mirrg.beryllium/' }
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.+'
+
+	implementation group: 'mirrg', name: 'mirrg.beryllium.lang', version: '3.0+'
+	//implementation group: 'mirrg', name: 'mirrg.beryllium.template', version: '0.0+'
+}
+
+// 成果物
+
 jar {
 	manifest {
 		attributes 'Implementation-Title': 'Gradle Quickstart'
@@ -40,21 +60,6 @@ artifacts {
 	archives javadocJar
 }
 
-repositories {
-	mavenCentral()
-
-	maven { url mavenRootDir }
-
-	//maven { url 'https://raw.githubusercontent.com/MirrgieRiana/mirrg.lithium/master/maven' }
-	//maven { url 'https://mirrgieriana.github.io/mirrg.beryllium/' }
-}
-
-dependencies {
-	testCompile group: 'junit', name: 'junit', version: '4.+'
-
-	//compile group: 'mirrg', name: 'mirrg.beryllium.template', version: '0.0+'
-}
-
 uploadArchives {
 	repositories {
 
@@ -66,6 +71,8 @@ uploadArchives {
 	}
 }
 
+//////////////////////////// その他
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '4.9'
 }
