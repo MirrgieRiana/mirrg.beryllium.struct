@@ -6,8 +6,8 @@ project.group = 'mirrg'
 project.archivesBaseName = 'mirrg.beryllium.struct'
 version = '1.1.0'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 10
+targetCompatibility = 10
 tasks.withType(AbstractCompile)*.options*.encoding = 'UTF-8'
 tasks.withType(GroovyCompile)*.groovyOptions*.encoding = 'UTF-8'
 
