@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,8 +24,8 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import mirrg.beryllium.lang.ULambda;
 import mirrg.beryllium.struct.suppliterator.core.SuppliteratorFastBase;
 
 // TODO move -> struct
@@ -110,7 +112,19 @@ public interface ISuppliterator<T>
 	 */
 	public static <T> ISuppliterator<T> of(Enumeration<T> enumeration)
 	{
-		return of(ULambda.toIterator(enumeration));
+		return of(new Iterator<T>() {
+			@Override
+			public T next()
+			{
+				return enumeration.nextElement();
+			}
+
+			@Override
+			public boolean hasNext()
+			{
+				return enumeration.hasMoreElements();
+			}
+		});
 	}
 
 	/**
@@ -399,7 +413,10 @@ public interface ISuppliterator<T>
 
 	public default Stream<T> stream()
 	{
-		return ULambda.toStream(iterator());
+		return StreamSupport.stream(
+			Spliterators.spliteratorUnknownSize(
+				iterator(),
+				Spliterator.ORDERED), false);
 	}
 
 	public default IntStream streamToInt(ToIntFunction<? super T> function)
@@ -449,7 +466,20 @@ public interface ISuppliterator<T>
 
 	public default Enumeration<T> enumerate()
 	{
-		return ULambda.toEnumeration(iterator());
+		var iterator = iterator();
+		return new Enumeration<T>() {
+			@Override
+			public T nextElement()
+			{
+				return iterator.next();
+			}
+
+			@Override
+			public boolean hasMoreElements()
+			{
+				return iterator.hasNext();
+			}
+		};
 	}
 
 }

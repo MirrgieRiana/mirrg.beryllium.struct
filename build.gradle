@@ -27,7 +27,6 @@ repositories {
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.+'
 
-	implementation group: 'mirrg', name: 'mirrg.beryllium.lang', version: '3.0+'
 	//implementation group: 'mirrg', name: 'mirrg.beryllium.template', version: '0.0+'
 }
 
