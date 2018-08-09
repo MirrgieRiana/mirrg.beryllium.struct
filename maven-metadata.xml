@@ -2,12 +2,13 @@
 <metadata>
   <groupId>mirrg</groupId>
   <artifactId>mirrg.beryllium.struct</artifactId>
-  <version>1.0.0</version>
   <versioning>
+    <release>2.0.0</release>
     <versions>
       <version>1.0.0</version>
       <version>1.1.0</version>
+      <version>2.0.0</version>
     </versions>
-    <lastUpdated>20180513162316</lastUpdated>
+    <lastUpdated>20180809200018</lastUpdated>
   </versioning>
 </metadata>
