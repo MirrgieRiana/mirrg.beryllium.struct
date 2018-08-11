@@ -1,16 +1,14 @@
 package mirrg.beryllium.struct.suppliterator;
 
 import static mirrg.beryllium.struct.suppliterator.ISuppliterator.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Test;
-
-import mirrg.beryllium.struct.suppliterator.ISuppliterator;
+import org.junit.jupiter.api.Test;
 
 public class TestSuppliterator
 {
