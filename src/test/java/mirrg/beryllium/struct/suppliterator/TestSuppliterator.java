@@ -20,7 +20,7 @@ public class TestSuppliterator
 			.mapToObj(i -> i)
 			.collect(Collectors.toCollection(ArrayList::new)).iterator());
 
-		ISuppliterator<Number> flatMap = cast(concat(
+		ISuppliterator<Number> flatMap = of(
 
 			of(
 
@@ -38,7 +38,9 @@ public class TestSuppliterator
 			)
 
 		)
-			.flatMap(f));
+			.apply(ISuppliterator::flatten)
+			.flatMap(f)
+			.apply(ISuppliterator::cast);
 
 		ArrayList<Number> collection = flatMap
 			.toCollection(() -> new ArrayList<Number>());
@@ -76,6 +78,18 @@ public class TestSuppliterator
 		assertEquals("5<>6<>7<>8<>9<>10", range(5, 11).map(i -> "" + i).collect(Collectors.joining("<>")));
 		assertEquals(6L, (long) range(5, 11).collect(Collectors.counting()));
 		assertEquals(6, range(5, 11).count());
+	}
+
+	@Test
+	public void test_cast()
+	{
+		ISuppliterator<Integer> suppliterator1 = ISuppliterator.of(1, 2, 3, 4, 5);
+
+		// castをapplyに入れるとインデントを変更せずにキャストできる
+		ISuppliterator<Number> suppliterator2 = suppliterator1
+			.apply(ISuppliterator::cast);
+
+		assertEquals("12345", suppliterator2.join());
 	}
 
 	private void aAE(ISuppliterator<Integer> actual, int... expected)

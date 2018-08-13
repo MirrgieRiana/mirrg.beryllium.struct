@@ -11,6 +11,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import mirrg.beryllium.struct.suppliterator.ISuppliterator;
+import mirrg.beryllium.struct.suppliterator.SuppliteratorNullableBase;
+
 public final class ImmutableArray<T> implements Iterable<T>
 {
 
@@ -109,8 +112,7 @@ public final class ImmutableArray<T> implements Iterable<T>
 	@Override
 	public Iterator<T> iterator()
 	{
-		return new Iterator<T>() {
-
+		return new Iterator<>() {
 			private int i = 0;
 
 			@Override
@@ -124,7 +126,21 @@ public final class ImmutableArray<T> implements Iterable<T>
 			{
 				return array[i++];
 			}
+		};
+	}
 
+	public ISuppliterator<T> suppliterator()
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public T nullableNextImpl()
+			{
+				int i2 = i;
+				i++;
+				return i2 < array.length ? array[i2] : null;
+			}
 		};
 	}
 

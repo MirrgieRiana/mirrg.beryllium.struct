@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -26,9 +27,6 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import mirrg.beryllium.struct.suppliterator.core.SuppliteratorFastBase;
-
-// TODO move -> struct
 /**
  * {@link Enumeration} や {@link Iterator} がもつメソッドを1個にまとめたものです。
  * ただし、このインターフェースは非nullの値のみが流れます。
@@ -42,19 +40,20 @@ public interface ISuppliterator<T>
 	 *
 	 * @return
 	 * 		列挙がリストの末端に達して要素が存在しない場合、empty。
+	 * @throws NoSuchElementException
+	 *             リストの末尾以降にメソッドを呼び出したとき。
 	 */
-	public Optional<T> next();
+	public Optional<T> next() throws NoSuchElementException;
 
 	/**
 	 * このメソッドがnullを返した場合、以降このメソッドを呼び出してはなりません。
 	 *
 	 * @return
 	 * 		列挙がリストの末端に達して要素が存在しない場合、null。
+	 * @throws NoSuchElementException
+	 *             リストの末尾以降にメソッドを呼び出したとき。
 	 */
-	public default T nullableNext()
-	{
-		return next().orElse(null);
-	}
+	public T nullableNext() throws NoSuchElementException;
 
 	// 生成
 
@@ -65,11 +64,11 @@ public interface ISuppliterator<T>
 	@SafeVarargs
 	public static <T> ISuppliterator<T> of(T... ts)
 	{
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			private int index = 0;
 
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				if (index < ts.length) {
 					var next = ts[index];
@@ -88,9 +87,9 @@ public interface ISuppliterator<T>
 	 */
 	public static <T> ISuppliterator<T> of(Iterator<T> iterator)
 	{
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				return iterator.hasNext() ? iterator.next() : null;
 			}
@@ -146,11 +145,11 @@ public interface ISuppliterator<T>
 
 	public static ISuppliterator<Integer> range(int startInclusive, int endExclusive)
 	{
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			private int i = startInclusive;
 
 			@Override
-			public Integer nullableNext()
+			public Integer nullableNextImpl()
 			{
 				if (i < endExclusive) {
 					var i2 = i;
@@ -168,9 +167,9 @@ public interface ISuppliterator<T>
 	public default <O> ISuppliterator<O> map(Function<? super T, ? extends O> mapper)
 	{
 		var this2 = this;
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			@Override
-			public O nullableNext()
+			public O nullableNextImpl()
 			{
 				var next = this2.nullableNext();
 				return next != null ? mapper.apply(next) : null;
@@ -181,9 +180,9 @@ public interface ISuppliterator<T>
 	public default ISuppliterator<T> filter(Predicate<? super T> predicate)
 	{
 		var this2 = this;
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				while (true) {
 					var next = this2.nullableNext();
@@ -197,9 +196,9 @@ public interface ISuppliterator<T>
 	public default ISuppliterator<T> peek(Consumer<? super T> consumer)
 	{
 		var this2 = this;
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				var next = this2.nullableNext();
 				consumer.accept(next);
@@ -211,11 +210,11 @@ public interface ISuppliterator<T>
 	public default ISuppliterator<T> limit(int length)
 	{
 		var this2 = this;
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			private int i = 0;
 
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				if (i >= length) {
 					return null;
@@ -230,11 +229,11 @@ public interface ISuppliterator<T>
 	public default ISuppliterator<T> skip(int start)
 	{
 		var this2 = this;
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			private int i = 0;
 
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				for (; i < start; i++) {
 					this2.nullableNext();
@@ -256,11 +255,11 @@ public interface ISuppliterator<T>
 
 	public static <T> ISuppliterator<T> flatten(ISuppliterator<ISuppliterator<T>> suppliterator)
 	{
-		return new SuppliteratorFastBase<>() {
+		return new SuppliteratorNullableBase<>() {
 			private ISuppliterator<T> current = null;
 
 			@Override
-			public T nullableNext()
+			public T nullableNextImpl()
 			{
 				while (true) {
 					if (current == null) {
