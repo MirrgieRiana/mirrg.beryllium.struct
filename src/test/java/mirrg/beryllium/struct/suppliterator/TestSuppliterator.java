@@ -108,4 +108,11 @@ public class TestSuppliterator
 		assertEquals(e, ISuppliterator.of(ss).sortedDouble(s -> s.length()).join(","));
 	}
 
+	@Test
+	public void test_before()
+	{
+		assertEquals("12345", ISuppliterator.of(3, 4, 5).before(1, 2).join());
+		assertEquals("34512", ISuppliterator.of(3, 4, 5).after(1, 2).join());
+	}
+
 }

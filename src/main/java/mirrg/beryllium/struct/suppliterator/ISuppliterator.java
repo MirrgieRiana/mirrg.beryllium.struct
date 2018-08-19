@@ -248,6 +248,28 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return skip(start).limit(length);
 	}
 
+	@SuppressWarnings("unchecked")
+	public default ISuppliterator<T> before(T... ts)
+	{
+		return before(ISuppliterator.of(ts));
+	}
+
+	public default ISuppliterator<T> before(ISuppliterator<T> ts)
+	{
+		return ISuppliterator.concat(ts, this);
+	}
+
+	@SuppressWarnings("unchecked")
+	public default ISuppliterator<T> after(T... ts)
+	{
+		return after(ISuppliterator.of(ts));
+	}
+
+	public default ISuppliterator<T> after(ISuppliterator<T> ts)
+	{
+		return ISuppliterator.concat(this, ts);
+	}
+
 	public default <O> ISuppliterator<O> apply(Function<? super ISuppliterator<T>, ? extends ISuppliterator<O>> function)
 	{
 		return function.apply(this);
