@@ -97,4 +97,15 @@ public class TestSuppliterator
 		assertArrayEquals(expected, actual.toIntArray(i -> i));
 	}
 
+	@Test
+	public void test_sorted()
+	{
+		String[] ss = { "10", "-200", "5", "69", "35" };
+		String e = "5,10,69,35,-200";
+
+		assertEquals(e, ISuppliterator.of(ss).sortedInt(s -> s.length()).join(","));
+		assertEquals(e, ISuppliterator.of(ss).sortedLong(s -> s.length()).join(","));
+		assertEquals(e, ISuppliterator.of(ss).sortedDouble(s -> s.length()).join(","));
+	}
+
 }

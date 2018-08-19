@@ -297,6 +297,56 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return of(list);
 	}
 
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedInt(ToIntFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			int a2 = function.applyAsInt(a);
+			int b2 = function.applyAsInt(b);
+			return a2 > b2
+				? 1
+				: a2 < b2
+					? -1
+					: 0;
+		});
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedLong(ToLongFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			long a2 = function.applyAsLong(a);
+			long b2 = function.applyAsLong(b);
+			return a2 > b2
+				? 1
+				: a2 < b2
+					? -1
+					: 0;
+		});
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedDouble(ToDoubleFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			double a2 = function.applyAsDouble(a);
+			double b2 = function.applyAsDouble(b);
+			return Double.compare(a2, b2);
+		});
+		return of(list);
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <I extends O, O> ISuppliterator<O> cast(ISuppliterator<I> suppliterator)
 	{
