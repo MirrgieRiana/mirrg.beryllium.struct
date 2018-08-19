@@ -465,6 +465,11 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return list.toArray(sArray.apply(list.size()));
 	}
 
+	public default ImmutableArray<T> toImmutableArray()
+	{
+		return new ImmutableArray<>(toCollection());
+	}
+
 	public default int[] toIntArray(ToIntFunction<? super T> function)
 	{
 		return streamToInt(function)
