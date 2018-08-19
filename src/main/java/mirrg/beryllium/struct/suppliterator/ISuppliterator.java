@@ -227,7 +227,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 			public T nullableNextImpl()
 			{
 				var next = this2.nullableNext();
-				consumer.accept(next);
+				if (next != null) consumer.accept(next, i - 1);
 				return next;
 			}
 		};
