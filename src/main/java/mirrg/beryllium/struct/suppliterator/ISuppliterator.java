@@ -27,6 +27,8 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import mirrg.beryllium.struct.ImmutableArray;
+
 /**
  * {@link Enumeration} や {@link Iterator} がもつメソッドを1個にまとめたものです。
  * ただし、このインターフェースは非nullの値のみが流れます。
