@@ -103,6 +103,7 @@ public class TestSuppliterator
 		String[] ss = { "10", "-200", "5", "69", "35" };
 		String e = "5,10,69,35,-200";
 
+		assertEquals("-200,10,35,5,69", ISuppliterator.of(ss).sortedObj(s -> s).join(","));
 		assertEquals(e, ISuppliterator.of(ss).sortedInt(s -> s.length()).join(","));
 		assertEquals(e, ISuppliterator.of(ss).sortedLong(s -> s.length()).join(","));
 		assertEquals(e, ISuppliterator.of(ss).sortedDouble(s -> s.length()).join(","));

@@ -423,6 +423,16 @@ public interface ISuppliterator<T> extends Iterable<T>
 	/**
 	 * 昇順にソートします。
 	 */
+	public default ISuppliterator<T> sortedObj(Function<? super T, Comparable<? super T>> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> function.apply(a).compareTo(b));
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
 	public default ISuppliterator<T> sortedInt(ToIntFunction<? super T> function)
 	{
 		var list = toCollection();
