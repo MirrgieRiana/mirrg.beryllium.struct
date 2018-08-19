@@ -32,7 +32,7 @@ import java.util.stream.StreamSupport;
  * ただし、このインターフェースは非nullの値のみが流れます。
  * 並列処理はサポートしまていせん。
  */
-public interface ISuppliterator<T>
+public interface ISuppliterator<T> extends Iterable<T>
 {
 
 	/**
@@ -305,6 +305,7 @@ public interface ISuppliterator<T>
 
 	// 終端操作
 
+	@Override
 	public default void forEach(Consumer<? super T> consumer)
 	{
 		while (true) {
@@ -436,6 +437,7 @@ public interface ISuppliterator<T>
 			.mapToDouble(function);
 	}
 
+	@Override
 	public default Iterator<T> iterator()
 	{
 		var this2 = this;
