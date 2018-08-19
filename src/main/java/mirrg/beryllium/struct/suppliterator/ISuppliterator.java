@@ -139,6 +139,30 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return of((Iterable<T>) stream.collect(Collectors.toCollection(ArrayList::new)));
 	}
 
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Integer> of(IntStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Long> of(LongStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Double> of(DoubleStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
 	@SafeVarargs
 	public static <T> ISuppliterator<T> concat(ISuppliterator<T>... suppliterators)
 	{
