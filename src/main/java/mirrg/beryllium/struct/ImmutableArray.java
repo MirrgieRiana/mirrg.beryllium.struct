@@ -170,6 +170,11 @@ public final class ImmutableArray<T> implements Iterable<T>
 		return Stream.of(array);
 	}
 
+	public ISuppliterator<T> toSuppliterator()
+	{
+		return ISuppliterator.of(this);
+	}
+
 	public void forEach(ObjIntConsumer<T> consumer)
 	{
 		for (int i = 0; i < array.length; i++) {
