@@ -14,6 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import mirrg.beryllium.struct.ImmutableArray;
+import mirrg.beryllium.struct.Tuple;
 
 /**
  * {@link Enumeration} や {@link Iterator} がもつメソッドを1個にまとめたものです。
@@ -203,6 +205,30 @@ public interface ISuppliterator<T> extends Iterable<T>
 		};
 	}
 
+	public default <O> ISuppliterator<O> map(ObjIntToObjFunction<? super T, ? extends O> mapper)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public O nullableNextImpl()
+			{
+				i++;
+				var next = this2.nullableNext();
+				return next != null ? mapper.apply(next, i - 1) : null;
+			}
+		};
+	}
+
+	@FunctionalInterface
+	public static interface ObjIntToObjFunction<I, O>
+	{
+
+		public O apply(I i, int index);
+
+	}
+
 	public default ISuppliterator<T> filter(Predicate<? super T> predicate)
 	{
 		var this2 = this;
@@ -219,6 +245,33 @@ public interface ISuppliterator<T> extends Iterable<T>
 		};
 	}
 
+	public default ISuppliterator<T> filter(ObjIntPredicate<? super T> predicate)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public T nullableNextImpl()
+			{
+				while (true) {
+					i++;
+					var next = this2.nullableNext();
+					if (next == null) return null;
+					if (predicate.test(next, i - 1)) return next;
+				}
+			}
+		};
+	}
+
+	@FunctionalInterface
+	public static interface ObjIntPredicate<T>
+	{
+
+		public boolean test(T t, int index);
+
+	}
+
 	public default ISuppliterator<T> peek(Consumer<? super T> consumer)
 	{
 		var this2 = this;
@@ -226,6 +279,23 @@ public interface ISuppliterator<T> extends Iterable<T>
 			@Override
 			public T nullableNextImpl()
 			{
+				var next = this2.nullableNext();
+				if (next != null) consumer.accept(next);
+				return next;
+			}
+		};
+	}
+
+	public default ISuppliterator<T> peek(ObjIntConsumer<? super T> consumer)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public T nullableNextImpl()
+			{
+				i++;
 				var next = this2.nullableNext();
 				if (next != null) consumer.accept(next, i - 1);
 				return next;
@@ -330,6 +400,11 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return flatten(map(mapper));
 	}
 
+	public default <O> ISuppliterator<O> flatMap(ObjIntToObjFunction<? super T, ? extends ISuppliterator<O>> mapper)
+	{
+		return flatten(map(mapper));
+	}
+
 	public default ISuppliterator<T> reverse()
 	{
 		return of(toCollection(ArrayDeque::new).descendingIterator());
@@ -401,6 +476,11 @@ public interface ISuppliterator<T> extends Iterable<T>
 		return (ISuppliterator<O>) suppliterator;
 	}
 
+	public default ISuppliterator<Tuple<Integer, T>> indexed()
+	{
+		return map((t, i) -> new Tuple<>(i, t));
+	}
+
 	// 終端操作
 
 	@Override
@@ -410,6 +490,21 @@ public interface ISuppliterator<T> extends Iterable<T>
 			var next = nullableNext();
 			if (next != null) {
 				consumer.accept(next);
+			} else {
+				break;
+			}
+		}
+	}
+
+	public default void forEach(ObjIntConsumer<? super T> consumer)
+	{
+		int i = 0;
+
+		while (true) {
+			i++;
+			var next = nullableNext();
+			if (next != null) {
+				consumer.accept(next, i - 1);
 			} else {
 				break;
 			}

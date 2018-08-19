@@ -115,4 +115,35 @@ public class TestSuppliterator
 		assertEquals("34512", ISuppliterator.of(3, 4, 5).after(1, 2).join());
 	}
 
+	@Test
+	public void test_indexed()
+	{
+		assertEquals("012", ISuppliterator.of("a", "b", "c").map((s, i) -> i).join());
+		assertEquals("ac", ISuppliterator.of("a", "b", "c").filter((s, i) -> i != 1).join());
+		new Object() {
+			private String s = "";
+
+			private void run()
+			{
+				assertEquals("abc", ISuppliterator.of("a", "b", "c").peek((s2, i) -> s += i).join());
+				assertEquals("012", s);
+			}
+		}.run();
+		assertEquals("abbccc", ISuppliterator.of("a", "b", "c")
+			.map((s, i) -> ISuppliterator.range(0, i + 1)
+				.map(i2 -> s)
+				.join())
+			.join());
+		assertEquals("0a1b2c", ISuppliterator.of("a", "b", "c").indexed().map(t -> "" + t.x + t.y).join());
+		new Object() {
+			private String s = "";
+
+			private void run()
+			{
+				ISuppliterator.of("a", "b", "c").forEach((s2, i) -> s += i);
+				assertEquals("012", s);
+			}
+		}.run();
+	}
+
 }
