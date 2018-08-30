@@ -127,7 +127,7 @@ public final class ImmutableArray<T> implements Iterable<T>
 
 	public static <T> ImmutableArray<T> fromStream(Stream<? extends T> stream)
 	{
-		return fromList(stream.collect(Collectors.toCollection(ArrayList::new)));
+		return fromList((List<? extends T>) stream.collect(Collectors.toCollection(ArrayList::new)));
 	}
 
 	public static <T> ImmutableArray<T> fromIterable(Iterable<? extends T> iterable)
