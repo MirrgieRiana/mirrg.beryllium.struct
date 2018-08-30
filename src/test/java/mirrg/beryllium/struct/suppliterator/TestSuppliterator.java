@@ -16,7 +16,7 @@ public class TestSuppliterator
 	@Test
 	public void test()
 	{
-		Function<String, ISuppliterator<Integer>> f = s -> of(s.chars()
+		Function<String, ISuppliterator<Integer>> f = s -> fromIterator(s.chars()
 			.mapToObj(i -> i)
 			.collect(Collectors.toCollection(ArrayList::new)).iterator());
 

@@ -81,11 +81,163 @@ public interface ISuppliterator<T>
 		};
 	}
 
+	public static ISuppliterator<Byte> fromArray(byte[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Byte nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Character> fromArray(char[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Character nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Short> fromArray(short[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Short nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Integer> fromArray(int[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Integer nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Long> fromArray(long[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Long nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Float> fromArray(float[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Float nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Double> fromArray(double[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Double nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
+	public static ISuppliterator<Boolean> fromArray(boolean[] array)
+	{
+		return new SuppliteratorNullableBase<>() {
+			private int index = 0;
+
+			@Override
+			public Boolean nullableNextImpl()
+			{
+				if (index < array.length) {
+					var next = array[index];
+					index++;
+					return next;
+				} else {
+					return null;
+				}
+			}
+		};
+	}
+
 	/**
 	 * @param iterator
 	 *            nullを含まないTのIterator
 	 */
-	public static <T> ISuppliterator<T> of(Iterator<T> iterator)
+	public static <T> ISuppliterator<T> fromIterator(Iterator<T> iterator)
 	{
 		return new SuppliteratorNullableBase<>() {
 			@Override
@@ -100,18 +252,18 @@ public interface ISuppliterator<T>
 	 * @param iterable
 	 *            nullを含まないTのIterable
 	 */
-	public static <T> ISuppliterator<T> of(Iterable<T> iterable)
+	public static <T> ISuppliterator<T> fromIterable(Iterable<T> iterable)
 	{
-		return of(iterable.iterator());
+		return fromIterator(iterable.iterator());
 	}
 
 	/**
 	 * @param enumeration
 	 *            nullを含まないTのEnumeration
 	 */
-	public static <T> ISuppliterator<T> of(Enumeration<T> enumeration)
+	public static <T> ISuppliterator<T> fromEnumeration(Enumeration<T> enumeration)
 	{
-		return of(new Iterator<T>() {
+		return fromIterator(new Iterator<T>() {
 			@Override
 			public T next()
 			{
@@ -132,9 +284,9 @@ public interface ISuppliterator<T>
 	 * @param stream
 	 *            nullを含まないTのStream
 	 */
-	public static <T> ISuppliterator<T> of(Stream<T> stream)
+	public static <T> ISuppliterator<T> fromStream(Stream<T> stream)
 	{
-		return of((Iterable<T>) stream.collect(Collectors.toCollection(ArrayList::new)));
+		return fromIterable(stream.collect(Collectors.toCollection(ArrayList::new)));
 	}
 
 	@SafeVarargs
@@ -284,7 +436,7 @@ public interface ISuppliterator<T>
 
 	public default ISuppliterator<T> reverse()
 	{
-		return of(toCollection(ArrayDeque::new).descendingIterator());
+		return fromIterator(toCollection(ArrayDeque::new).descendingIterator());
 	}
 
 	/**
@@ -294,7 +446,7 @@ public interface ISuppliterator<T>
 	{
 		var list = toCollection();
 		list.sort(comparator);
-		return of(list);
+		return fromIterable(list);
 	}
 
 	@SuppressWarnings("unchecked")

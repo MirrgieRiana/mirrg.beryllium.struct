@@ -19,64 +19,134 @@ public final class ImmutableArray<T> implements Iterable<T>
 
 	private final T[] array;
 
+	private ImmutableArray(T[] array)
+	{
+		this.array = array;
+	}
+
+	//
+
 	@SuppressWarnings("unchecked")
 	@SafeVarargs
-	public ImmutableArray(T... array)
+	public static <T> ImmutableArray<T> of(T... array)
 	{
-		this.array = (T[]) new Object[array.length];
+		T[] array2 = (T[]) new Object[array.length];
 		Class<?> clazz = array.getClass().getComponentType();
 		for (int i = 0; i < array.length; i++) {
 			if (!clazz.isInstance(array[i])) throw new ClassCastException();
-			this.array[i] = array[i];
+			array2[i] = array[i];
 		}
+		return new ImmutableArray<>(array2);
 	}
+
+	//
+
+	public static ImmutableArray<Byte> fromArray(byte[] array)
+	{
+		Byte[] array2 = new Byte[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Character> fromArray(char[] array)
+	{
+		Character[] array2 = new Character[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Short> fromArray(short[] array)
+	{
+		Short[] array2 = new Short[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Integer> fromArray(int[] array)
+	{
+		Integer[] array2 = new Integer[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Long> fromArray(long[] array)
+	{
+		Long[] array2 = new Long[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Float> fromArray(float[] array)
+	{
+		Float[] array2 = new Float[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Double> fromArray(double[] array)
+	{
+		Double[] array2 = new Double[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	public static ImmutableArray<Boolean> fromArray(boolean[] array)
+	{
+		Boolean[] array2 = new Boolean[array.length];
+		for (int i = 0; i < array.length; i++) {
+			array2[i] = array[i];
+		}
+		return new ImmutableArray<>(array2);
+	}
+
+	//
 
 	@SuppressWarnings("unchecked")
-	public ImmutableArray(List<T> array)
+	public static <T> ImmutableArray<T> fromList(List<? extends T> array)
 	{
-		this.array = (T[]) new Object[array.size()];
+		T[] array2 = (T[]) new Object[array.size()];
 		for (int i = 0; i < array.size(); i++) {
-			this.array[i] = array.get(i);
+			array2[i] = array.get(i);
 		}
+		return new ImmutableArray<>(array2);
 	}
 
-	public ImmutableArray(Stream<T> stream)
+	public static <T> ImmutableArray<T> fromStream(Stream<? extends T> stream)
 	{
-		this(toList(stream));
+		return fromList(stream.collect(Collectors.toCollection(ArrayList::new)));
 	}
 
-	public ImmutableArray(Iterable<T> iterable)
+	public static <T> ImmutableArray<T> fromIterable(Iterable<? extends T> iterable)
 	{
-		this(toList(iterable));
-	}
-
-	public ImmutableArray(Enumeration<T> enumeration)
-	{
-		this(toList(enumeration));
-	}
-
-	private static <T> ArrayList<T> toList(Stream<T> stream)
-	{
-		return stream.collect(Collectors.toCollection(ArrayList::new));
-	}
-
-	private static <T> ArrayList<T> toList(Iterable<T> iterable)
-	{
-		ArrayList<T> array = new ArrayList<>();
-		Iterator<T> iterator = iterable.iterator();
+		ArrayList<T> list = new ArrayList<>();
+		Iterator<? extends T> iterator = iterable.iterator();
 		while (iterator.hasNext()) {
-			array.add(iterator.next());
+			list.add(iterator.next());
 		}
-		return array;
+		return fromList(list);
 	}
 
-	private static <T> ArrayList<T> toList(Enumeration<T> enumeration)
+	public static <T> ImmutableArray<T> fromEnumeration(Enumeration<? extends T> enumeration)
 	{
-		ArrayList<T> array = new ArrayList<>();
+		ArrayList<T> list = new ArrayList<>();
 		while (enumeration.hasMoreElements()) {
-			array.add(enumeration.nextElement());
+			list.add(enumeration.nextElement());
 		}
-		return array;
+		return fromList(list);
 	}
 
 	//
