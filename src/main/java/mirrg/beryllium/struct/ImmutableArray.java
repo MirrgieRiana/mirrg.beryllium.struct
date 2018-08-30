@@ -242,7 +242,7 @@ public final class ImmutableArray<T> implements Iterable<T>
 
 	public ISuppliterator<T> toSuppliterator()
 	{
-		return ISuppliterator.of(this);
+		return ISuppliterator.fromIterable(this);
 	}
 
 	public void forEach(ObjIntConsumer<T> consumer)

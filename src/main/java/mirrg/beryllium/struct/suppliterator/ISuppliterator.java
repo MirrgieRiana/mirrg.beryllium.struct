@@ -296,25 +296,25 @@ public interface ISuppliterator<T> extends Iterable<T>
 	/**
 	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
 	 */
-	public static ISuppliterator<Integer> of(IntStream stream)
+	public static ISuppliterator<Integer> fromStream(IntStream stream)
 	{
-		return of(stream.mapToObj(x -> x));
+		return fromStream(stream.mapToObj(x -> x));
 	}
 
 	/**
 	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
 	 */
-	public static ISuppliterator<Long> of(LongStream stream)
+	public static ISuppliterator<Long> fromStream(LongStream stream)
 	{
-		return of(stream.mapToObj(x -> x));
+		return fromStream(stream.mapToObj(x -> x));
 	}
 
 	/**
 	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
 	 */
-	public static ISuppliterator<Double> of(DoubleStream stream)
+	public static ISuppliterator<Double> fromStream(DoubleStream stream)
 	{
-		return of(stream.mapToObj(x -> x));
+		return fromStream(stream.mapToObj(x -> x));
 	}
 
 	@SafeVarargs
@@ -579,7 +579,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 	{
 		var list = toCollection();
 		list.sort((a, b) -> function.apply(a).compareTo(b));
-		return of(list);
+		return fromIterable(list);
 	}
 
 	/**
@@ -597,7 +597,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 					? -1
 					: 0;
 		});
-		return of(list);
+		return fromIterable(list);
 	}
 
 	/**
@@ -615,7 +615,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 					? -1
 					: 0;
 		});
-		return of(list);
+		return fromIterable(list);
 	}
 
 	/**
@@ -629,7 +629,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 			double b2 = function.applyAsDouble(b);
 			return Double.compare(a2, b2);
 		});
-		return of(list);
+		return fromIterable(list);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -750,7 +750,7 @@ public interface ISuppliterator<T> extends Iterable<T>
 
 	public default ImmutableArray<T> toImmutableArray()
 	{
-		return new ImmutableArray<>(toCollection());
+		return ImmutableArray.fromList(toCollection());
 	}
 
 	public default int[] toIntArray(ToIntFunction<? super T> function)
