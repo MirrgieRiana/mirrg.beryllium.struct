@@ -14,6 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
@@ -27,12 +28,15 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import mirrg.beryllium.struct.ImmutableArray;
+import mirrg.beryllium.struct.Tuple;
+
 /**
  * {@link Enumeration} や {@link Iterator} がもつメソッドを1個にまとめたものです。
  * ただし、このインターフェースは非nullの値のみが流れます。
  * 並列処理はサポートしまていせん。
  */
-public interface ISuppliterator<T>
+public interface ISuppliterator<T> extends Iterable<T>
 {
 
 	/**
@@ -289,6 +293,30 @@ public interface ISuppliterator<T>
 		return fromIterable(stream.collect(Collectors.toCollection(ArrayList::new)));
 	}
 
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Integer> of(IntStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Long> of(LongStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
+	/**
+	 * このメソッドは呼び出し時にストリームのすべての要素にアクセスします。
+	 */
+	public static ISuppliterator<Double> of(DoubleStream stream)
+	{
+		return of(stream.mapToObj(x -> x));
+	}
+
 	@SafeVarargs
 	public static <T> ISuppliterator<T> concat(ISuppliterator<T>... suppliterators)
 	{
@@ -329,6 +357,30 @@ public interface ISuppliterator<T>
 		};
 	}
 
+	public default <O> ISuppliterator<O> map(ObjIntToObjFunction<? super T, ? extends O> mapper)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public O nullableNextImpl()
+			{
+				i++;
+				var next = this2.nullableNext();
+				return next != null ? mapper.apply(next, i - 1) : null;
+			}
+		};
+	}
+
+	@FunctionalInterface
+	public static interface ObjIntToObjFunction<I, O>
+	{
+
+		public O apply(I i, int index);
+
+	}
+
 	public default ISuppliterator<T> filter(Predicate<? super T> predicate)
 	{
 		var this2 = this;
@@ -345,6 +397,33 @@ public interface ISuppliterator<T>
 		};
 	}
 
+	public default ISuppliterator<T> filter(ObjIntPredicate<? super T> predicate)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public T nullableNextImpl()
+			{
+				while (true) {
+					i++;
+					var next = this2.nullableNext();
+					if (next == null) return null;
+					if (predicate.test(next, i - 1)) return next;
+				}
+			}
+		};
+	}
+
+	@FunctionalInterface
+	public static interface ObjIntPredicate<T>
+	{
+
+		public boolean test(T t, int index);
+
+	}
+
 	public default ISuppliterator<T> peek(Consumer<? super T> consumer)
 	{
 		var this2 = this;
@@ -353,7 +432,24 @@ public interface ISuppliterator<T>
 			public T nullableNextImpl()
 			{
 				var next = this2.nullableNext();
-				consumer.accept(next);
+				if (next != null) consumer.accept(next);
+				return next;
+			}
+		};
+	}
+
+	public default ISuppliterator<T> peek(ObjIntConsumer<? super T> consumer)
+	{
+		var this2 = this;
+		return new SuppliteratorNullableBase<>() {
+			private int i = 0;
+
+			@Override
+			public T nullableNextImpl()
+			{
+				i++;
+				var next = this2.nullableNext();
+				if (next != null) consumer.accept(next, i - 1);
 				return next;
 			}
 		};
@@ -400,6 +496,28 @@ public interface ISuppliterator<T>
 		return skip(start).limit(length);
 	}
 
+	@SuppressWarnings("unchecked")
+	public default ISuppliterator<T> before(T... ts)
+	{
+		return before(ISuppliterator.of(ts));
+	}
+
+	public default ISuppliterator<T> before(ISuppliterator<T> ts)
+	{
+		return ISuppliterator.concat(ts, this);
+	}
+
+	@SuppressWarnings("unchecked")
+	public default ISuppliterator<T> after(T... ts)
+	{
+		return after(ISuppliterator.of(ts));
+	}
+
+	public default ISuppliterator<T> after(ISuppliterator<T> ts)
+	{
+		return ISuppliterator.concat(this, ts);
+	}
+
 	public default <O> ISuppliterator<O> apply(Function<? super ISuppliterator<T>, ? extends ISuppliterator<O>> function)
 	{
 		return function.apply(this);
@@ -434,6 +552,11 @@ public interface ISuppliterator<T>
 		return flatten(map(mapper));
 	}
 
+	public default <O> ISuppliterator<O> flatMap(ObjIntToObjFunction<? super T, ? extends ISuppliterator<O>> mapper)
+	{
+		return flatten(map(mapper));
+	}
+
 	public default ISuppliterator<T> reverse()
 	{
 		return fromIterator(toCollection(ArrayDeque::new).descendingIterator());
@@ -449,20 +572,101 @@ public interface ISuppliterator<T>
 		return fromIterable(list);
 	}
 
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedObj(Function<? super T, Comparable<? super T>> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> function.apply(a).compareTo(b));
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedInt(ToIntFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			int a2 = function.applyAsInt(a);
+			int b2 = function.applyAsInt(b);
+			return a2 > b2
+				? 1
+				: a2 < b2
+					? -1
+					: 0;
+		});
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedLong(ToLongFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			long a2 = function.applyAsLong(a);
+			long b2 = function.applyAsLong(b);
+			return a2 > b2
+				? 1
+				: a2 < b2
+					? -1
+					: 0;
+		});
+		return of(list);
+	}
+
+	/**
+	 * 昇順にソートします。
+	 */
+	public default ISuppliterator<T> sortedDouble(ToDoubleFunction<? super T> function)
+	{
+		var list = toCollection();
+		list.sort((a, b) -> {
+			double a2 = function.applyAsDouble(a);
+			double b2 = function.applyAsDouble(b);
+			return Double.compare(a2, b2);
+		});
+		return of(list);
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <I extends O, O> ISuppliterator<O> cast(ISuppliterator<I> suppliterator)
 	{
 		return (ISuppliterator<O>) suppliterator;
 	}
 
+	public default ISuppliterator<Tuple<Integer, T>> indexed()
+	{
+		return map((t, i) -> new Tuple<>(i, t));
+	}
+
 	// 終端操作
 
+	@Override
 	public default void forEach(Consumer<? super T> consumer)
 	{
 		while (true) {
 			var next = nullableNext();
 			if (next != null) {
 				consumer.accept(next);
+			} else {
+				break;
+			}
+		}
+	}
+
+	public default void forEach(ObjIntConsumer<? super T> consumer)
+	{
+		int i = 0;
+
+		while (true) {
+			i++;
+			var next = nullableNext();
+			if (next != null) {
+				consumer.accept(next, i - 1);
 			} else {
 				break;
 			}
@@ -544,6 +748,11 @@ public interface ISuppliterator<T>
 		return list.toArray(sArray.apply(list.size()));
 	}
 
+	public default ImmutableArray<T> toImmutableArray()
+	{
+		return new ImmutableArray<>(toCollection());
+	}
+
 	public default int[] toIntArray(ToIntFunction<? super T> function)
 	{
 		return streamToInt(function)
@@ -588,6 +797,7 @@ public interface ISuppliterator<T>
 			.mapToDouble(function);
 	}
 
+	@Override
 	public default Iterator<T> iterator()
 	{
 		var this2 = this;

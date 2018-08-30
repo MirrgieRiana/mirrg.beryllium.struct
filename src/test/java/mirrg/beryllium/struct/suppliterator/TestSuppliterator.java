@@ -97,4 +97,54 @@ public class TestSuppliterator
 		assertArrayEquals(expected, actual.toIntArray(i -> i));
 	}
 
+	@Test
+	public void test_sorted()
+	{
+		String[] ss = { "10", "-200", "5", "69", "35" };
+		String e = "5,10,69,35,-200";
+
+		assertEquals("-200,10,35,5,69", ISuppliterator.of(ss).sortedObj(s -> s).join(","));
+		assertEquals(e, ISuppliterator.of(ss).sortedInt(s -> s.length()).join(","));
+		assertEquals(e, ISuppliterator.of(ss).sortedLong(s -> s.length()).join(","));
+		assertEquals(e, ISuppliterator.of(ss).sortedDouble(s -> s.length()).join(","));
+	}
+
+	@Test
+	public void test_before()
+	{
+		assertEquals("12345", ISuppliterator.of(3, 4, 5).before(1, 2).join());
+		assertEquals("34512", ISuppliterator.of(3, 4, 5).after(1, 2).join());
+	}
+
+	@Test
+	public void test_indexed()
+	{
+		assertEquals("012", ISuppliterator.of("a", "b", "c").map((s, i) -> i).join());
+		assertEquals("ac", ISuppliterator.of("a", "b", "c").filter((s, i) -> i != 1).join());
+		new Object() {
+			private String s = "";
+
+			private void run()
+			{
+				assertEquals("abc", ISuppliterator.of("a", "b", "c").peek((s2, i) -> s += i).join());
+				assertEquals("012", s);
+			}
+		}.run();
+		assertEquals("abbccc", ISuppliterator.of("a", "b", "c")
+			.map((s, i) -> ISuppliterator.range(0, i + 1)
+				.map(i2 -> s)
+				.join())
+			.join());
+		assertEquals("0a1b2c", ISuppliterator.of("a", "b", "c").indexed().map(t -> "" + t.x + t.y).join());
+		new Object() {
+			private String s = "";
+
+			private void run()
+			{
+				ISuppliterator.of("a", "b", "c").forEach((s2, i) -> s += i);
+				assertEquals("012", s);
+			}
+		}.run();
+	}
+
 }
